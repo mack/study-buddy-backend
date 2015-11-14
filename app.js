@@ -35,6 +35,7 @@ io.on('connection', function (socket) {
   // Handle connections and disconnection dev logging 
   connections++
   console.log('[+] A new connection has been made. There are now '+ connections +' connections to the server.')
+  socket.emit('news', { hello: 'world' });
 
   socket.on('disconnect', function() {
     connections--
