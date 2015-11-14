@@ -51,20 +51,25 @@ io.on('connection', function (socket) {
       if (matchedRoom) {
         // Found a room that matches what we're looking for! Add user to it and start playing
         socket.join(matchedRoom.id)
+        socket.room = matchedRoom.id
         console.log('\n \n You joined the room ' + matchedRoom + '\nwith the id ' + matchedRoom.id)
-
+        console.log(socket.room)
       } else {
         // Couldn't find a room that matches what we're looking for... Create a new one and add it to the list
         var newRoom = {id: uuid.v4(), users: [roomInfo.username], course: roomInfo.course, material: roomInfo.material, grade: roomInfo.grade}
         waitingRooms.push(newRoom)
-        socket.join(newRoom.id)      
+        socket.join(newRoom.id)
+        socket.room = newRoom.id      
+        console.log(socket.room)
         console.log('You created a new room with the id ' + newRoom.id)
 
 
       }
     })
 
-
+    socket.on('sendMessage', function(data) {
+      io.sockets.in(socket.room).emit('chat', data)
+    })
 
   })
 
