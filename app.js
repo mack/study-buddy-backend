@@ -87,7 +87,7 @@ io.on('connection', function (socket) {
         matchedRoom.student1.room = matchedRoom
         
         //Test
-        io.to(matchedRoom.id).emit("room", matchedRoom)
+        io.emit("room", matchedRoom)
 
         console.log("Found a room, let us put you in there")
         // Idea to emit the room to the clients before we remove all that data, along with names possibly
