@@ -100,7 +100,6 @@ io.on('connection', function (socket) {
         console.log("Can't find a room")
 
         var newRoom = {id: uuid.v4(), student1: socket, student2: null, course: roomInfo.course, material: roomInfo.material, grade: roomInfo.grade}
-        io.emit("question", "Created a new room", 10)
         console.log(waitingRooms.length + " is the length of waiting rooms before the push")
         waitingRooms.push(newRoom)
         console.log(waitingRooms.length + " is the length of waiting rooms after the push")
