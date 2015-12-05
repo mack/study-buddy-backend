@@ -56,8 +56,12 @@ io.on('connection', function (socket) {
     connections--
     removeRoom(socket.room.id)
     socket.leave(socket.room.id)
-    
-    io.to(socket.room.id).emit("error", "")
+
+// 1 - other user disconnected
+// 2 - nothing
+// 3 - nothing
+
+    io.to(socket.room.id).emit("error", 1)
 
   })
 
