@@ -60,9 +60,6 @@ io.on('connection', function (socket) {
 
   })
 
-  setTimeout(function() {
-    socket.emit("question", "This is the function here, after i update it", 10)
-  }, 4000)
 
   socket.on('answer', function(data) {
     console.log("The user has finished the question and ansered it as " + data)
