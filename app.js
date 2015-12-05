@@ -89,7 +89,8 @@ io.on('connection', function (socket) {
         
         //Test
         io.emit("question", "User joined a room", 10)
-        io.emit("room", "")
+        matchedRoom.student2.emit("answer", "")
+        matchedRoom.student1.emit("question", "")
 
         console.log("Found a room, let us put you in there")
         // Idea to emit the room to the clients before we remove all that data, along with names possibly
