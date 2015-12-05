@@ -90,7 +90,7 @@ io.on('connection', function (socket) {
         matchedRoom.student1.room = matchedRoom
         
         //Test
-        io.emit("question", "User joined a room", 10)
+        
         matchedRoom.student2.emit("answer", "")
         matchedRoom.student1.emit("question", "")
 
