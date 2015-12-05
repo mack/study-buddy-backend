@@ -67,7 +67,7 @@ io.on('connection', function (socket) {
 
 
   socket.on('answer', function(data) {
-    console.log("The user has finished the question and ansered it as " + data)
+    io.to(socket.room.id).broadcast.emit("answer", data)
   })
 
 
