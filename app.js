@@ -1,125 +1,136 @@
 var app = require('express')();
-var uuid = require('node-uuid');
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
+var dbHandler = require('./dbHandler.js')
+var mongoose = require('mongoose');
 
 var port = Number(process.env.PORT || 8080)
 server.listen(port);
 
-var connections = 0
-console.log('[+] The server has started running on ' + port + ".")
 
-var waitingRooms = [];
+mongoose.connect('mongodb://localhost/rooms');
+var conn = mongoose.connection;
 
+conn.once('open', function callback () {
+  io.on('connection', function (socket) {
 
-var room = {id: uuid.v4(), student1: null, student2: null, course: 'math', material: 'meiosis', grade: '10'}
-var room2 = {id: uuid.v4(), student1: null, student2: null, course: 'dfgdfgdfg', material: 'dfgdfgdfg', grade: '15'}
-var room3 = {id: uuid.v4(), student1: null, student2: null, course: 'sdf34gdfg', material: 'ffdfgd4', grade: '17'}
+    socket.on('verify', function(verify) {
+      // add verify to the db
+      // change turns
+      // if turns are at the end
+      // send back summary
+      dbHandler.searchById(socket.room, function(room) {
+        room.verifies.push(verify)
+        var newTurn = room.turns + 1
+        room.turns = newTurn
 
-// waitingRooms.push(room)
-// waitingRooms.push(room2)
-// waitingRooms.push(room3)
-console.log(waitingRooms.length + " is the length of waiting rooms at the very beginning")
+        room.save(function(err) {
+          if (err) {
+            console.log(err)
+          } else {
+            
+            if (newTurn < 2) {
+              console.log('A room is updated. Added a answer into the answer array.  ' + newTurn)
+              socket.emit('paired', room.student2, "Round " + newTurn + "! We're waiting for " + room.student2 + " to write a new question.")
+              socket.broadcast.to(socket.room).emit('writeQuestion', "")
+            } else {
+              console.log('Emitting summary')
+              io.sockets.to(socket.room).emit('summary', room.questions, room.answers, room.verifies)
+            }
+          }
+        })
+      }) 
+    })
 
-function findRoom(course, material, grade, room) {
+    socket.on('answer', function(answer) {
+      // add the answer to the db
+      console.log('A answer came in')
+      console.log('this is the answer ' + answer)
+      dbHandler.searchById(socket.room, function(room) {
+        room.answers.push(answer)
+        room.save(function(err) {
+          if (err) {
+            console.log(err)
+          } else {
+            console.log('A room is updated. Added a answer into the answer array.')
+            socket.broadcast.to(socket.room).emit('verifyAnswer', room.questions[room.turns], answer)
+          }
+        })
+      }) 
+      // send it back to the other student
+      // wait for verify
+    })
 
-  var result = waitingRooms.filter(function(obj, index) {
-    return obj.course == course && obj.material == material && obj.grade == grade
-  })  
+    socket.on('question', function(question) {
+      // add the question to the db
+    dbHandler.searchById(socket.room, function(room) {
+        room.questions.push(question)
+        room.save(function(err) {
+          if (err) {
+            console.log(err)
+          } else {
+            console.log('A room is updated. Added a question into the questions array.')
+            socket.broadcast.to(socket.room).emit('writeAnswer', question)
+          }
+        })
+      }) 
 
-  room(result[0])
-}
+      // send it back to the other student
+      // wait for answer
+    })
 
-function removeRoom(_id) {
-  
-  var result = waitingRooms.filter(function(obj, index) {
-    return obj.id == _id
-  })
-  if (result[0] != null) {
-    console.log(waitingRooms.length + " is the length of waiting rooms when the remove room function is called")
-    var index = waitingRooms.indexOf(result[0])
-    waitingRooms.splice(index, 1)
-    console.log(waitingRooms.length + " is the length of waiting rooms after the splice in remove rooms")
-  }
+  // Handle setting up and removing rooms in the db when a user connects
+    socket.on('start', function(info) {
+      console.log('Got start')
+      var name = info.studentName.toString();
+      var subject = info.subject.toString();
+      var curriculum = info.curriculum.toString();
+      var grade = info.grade.toString(); 
 
-}
+      
+    dbHandler.search(subject, curriculum, grade, function(room) {
+      if (room) {
+        room.student2 = name;
+        room.save(function(err) {
+          if (err) {
+            console.log(err)
+          } else {
+            console.log('A room is updated with a new student')
+            socket.room = room.id
+            socket.join(room.id)
+            socket.emit('paired', room.student1)
+            socket.broadcast.to(socket.room).emit('writeQuestion', room.student2)
+          }
+        })
 
-
-
-
-io.on('connection', function (socket) {
-  // Handle connections and disconnection dev logging 
-  connections++
-
-  socket.on('disconnect', function() {
-    console.log("user has disconnected")
-    connections--
-    removeRoom(socket.room.id)
-    socket.leave(socket.room.id)
-
-// 1 - other user disconnected
-// 2 - nothing
-// 3 - nothing
-
-    io.to(socket.room.id).emit("error", 1)
-
-  })
-
-
-  socket.on('answer', function(data) {
-    io.to(socket.room.id).broadcast.emit("answer", data)
-  })
-
-
-// When the user searches for a new quiz
-  socket.on('start', function(roomInfo) {
-    // stores the username 
-    socket.username = roomInfo.username
-    // stores the room
-    
-    findRoom(roomInfo.course, roomInfo.material, roomInfo.grade, function(matchedRoom) {
-
-      if (matchedRoom != null) {
-  
-        // Found a room that matches what we're looking for! Add user to it and start playing
-        socket.join(matchedRoom.id)
-        socket.room = matchedRoom
-
-        matchedRoom.student2 = socket
-        // Update the other students matched room
-        matchedRoom.student1.room = matchedRoom
-        
-        //Test
-        
-        matchedRoom.student2.emit("answer", "")
-        matchedRoom.student1.emit("question", "")
-
-        console.log("Found a room, let us put you in there")
-        // Idea to emit the room to the clients before we remove all that data, along with names possibly
-        var index = waitingRooms.indexOf(matchedRoom)
-        waitingRooms.splice(index, 1)
-
-
-      } else if (matchedRoom == null) {
-        // Couldn't find a room that matches what we're looking for... Create a new one and add it to the list
-        console.log("Can't find a room")
-
-        var newRoom = {id: uuid.v4(), student1: socket, student2: null, course: roomInfo.course, material: roomInfo.material, grade: roomInfo.grade}
-        console.log(waitingRooms.length + " is the length of waiting rooms before the push")
-        waitingRooms.push(newRoom)
-        console.log(waitingRooms.length + " is the length of waiting rooms after the push")
-
-        socket.join(newRoom.id)
-        socket.room = newRoom    
-        
+      } else {
+        // No rooms. Add one to the db
+        dbHandler.add(name, subject, curriculum, grade, function(success, id) {
+            if (success == 0) {
+              console.log('Adding a room to the db.')
+              socket.room = id
+              socket.join(id)
+            }
+        }) 
 
       }
+    })
 
     })
 
+
+    socket.on('disconnect', function() {
+        if (socket.room) {
+          socket.broadcast.to(socket.room).emit('abandoned', "")
+          dbHandler.removeRoom(socket.room)
+          socket.leave(socket.room)
+          socket.room = null;
+        }
+    })
 
   })
 
 });
 
 module.exports = app;
+
