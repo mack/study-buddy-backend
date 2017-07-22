@@ -1,7 +1,7 @@
 # StudyBuddy Backend
 This repository was used as the backend for an iOS App developed in 2016 by [Mack Boudreau](https://github.com/mackboudreau) (myself) and Android app developed by [Ian Page](https://github.com/pageian). 
 Study Buddy was a Junior Achievement Company that attempted to improve study habbits amoung students. The mobile app worked by pairing two students based on courses and allowed them to quiz each other.
-The app was launched in mid November 2016 and shut down in ~April 2016.
+The app was launched in late 2015 and shut down in ~April 2016.
 
 Our old [twitter account](https://twitter.com/StudyBuddyJA)
 
