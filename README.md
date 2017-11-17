@@ -12,6 +12,7 @@ alt="Study Buddy App Promo" width="240" height="180" border="10" /></a>
 
 ## Preview
 [Actual Screenshot from working version](https://i.imgur.com/J2qAym2.png)
+
 [Mockup built in sketch](https://i.imgur.com/Re1lUVG.png)
 
 ## Awards
