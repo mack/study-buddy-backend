@@ -1,7 +1,7 @@
 # StudyBuddy Backend
 This repository was used as the backend for an iOS App developed in 2016 by [Mack Boudreau](https://github.com/mackboudreau) (myself) and Android app developed by [Ian Page](https://github.com/pageian). 
 Study Buddy was a Junior Achievement Company that attempted to improve study habbits amoung students. The mobile app worked by pairing two students based on courses and allowed them to quiz each other.
-The app was launched in late 2015 and shut down in ~April 2016.
+The app was launched in late 2015 and shut down in ~April 2016. It's since been removed from the app store, I sadly deleted code. I wish I kept it. 
 
 Our old [twitter account](https://twitter.com/StudyBuddyJA)
 
@@ -9,6 +9,10 @@ Our old [twitter account](https://twitter.com/StudyBuddyJA)
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=nSgjMRsnFyM
 " target="_blank"><img src="http://img.youtube.com/vi/nSgjMRsnFyM/0.jpg" 
 alt="Study Buddy App Promo" width="240" height="180" border="10" /></a>
+
+## Preview
+[Actual Screenshot from working version](https://i.imgur.com/J2qAym2.png)
+[Mockup built in sketch](https://i.imgur.com/Re1lUVG.png)
 
 ## Awards
 <blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">And the winner of Halifax Regional Pitch it! Is.. <a href="https://twitter.com/StudyBuddyJA">@StudyBuddyJA</a> <a href="https://twitter.com/Dartmouth_High">@Dartmouth_High</a> Congratulations!! <a href="https://t.co/7rjzBBxCWU">pic.twitter.com/7rjzBBxCWU</a></p>&mdash; Junior Achievement (@janovascotia) <a href="https://twitter.com/janovascotia/status/670036939043565568">November 27, 2015</a></blockquote>
